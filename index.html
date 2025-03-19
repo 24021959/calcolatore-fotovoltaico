@@ -57,16 +57,6 @@
       padding: 1.5rem;
       border-radius: 8px 8px 0 0;
     }
-    .sending-indicator {
-      display: none;
-      text-align: center;
-      padding: 20px;
-      margin-top: 20px;
-    }
-    .spinner-border {
-      width: 3rem;
-      height: 3rem;
-    }
     .tab-content {
       background-color: #fff;
     }
@@ -320,7 +310,7 @@
                         <tr class="table-success">
                           <td>Differenza</td>
                           <td colspan="2" class="text-center">
-                            <span id="differenza-guadagno" class="fw-bold">0 €</span> a favore dell'acquisto
+                            <span id="differenza-guadagno" class="fw-bold">0 €</span> <span id="scenario-migliore">a favore dell'acquisto</span>
                           </td>
                         </tr>
                       </tbody>
@@ -572,26 +562,36 @@
       const potenza = superficieUtile * densitaPotenza;
       const produzione = potenza * fattoreRegionale;
       
-      // Calcola quanta dell'energia prodotta può essere autoconsumata
-      // Non può essere più dell'effettivo consumo dell'azienda
-      const percentualeAutoconsumo = Math.min(0.8, consumoStimatoKWh / produzione);
-      const energiaAutoconsumata = produzione * percentualeAutoconsumo;
-      const energiaImmessaRete = produzione - energiaAutoconsumata;
-      
-      // Risparmio diretto dall'autoconsumo (a 0.25€/kWh)
-      const risparmioAutoconsumo = energiaAutoconsumata * 0.25;
-      
-      // Guadagno dalla vendita dell'energia immessa in rete (a 0.12€/kWh)
-      const guadagnoVenditaEnergia = energiaImmessaRete * 0.12;
-      
-      // Totale beneficio economico annuo
-      const beneficioTotale = risparmioAutoconsumo + guadagnoVenditaEnergia;
-      
-      // La parte che spetta all'azienda in base alla percentuale di partecipazione
+      // Percentuale di partecipazione
       const percentualePartecipazione = tipoSuperficie === 'tetto' ? 0.17 : 0.15;
-      const guadagnoAnnuo = beneficioTotale * percentualePartecipazione;
       
-      // Valore economico dell'energia prodotta
+      // Valore energia
       const valoreEnergia = produzione * 0.15 * fattoreConsumo;
       
-      // Costo impi
+      // Guadagno annuo con partecipazione
+      const guadagnoAnnuo = valoreEnergia * percentualePartecipazione;
+      
+      // Costo dell'impianto
+      const costoImpianto = potenza * 800;
+      
+      // Prezzo di acquisto dopo un anno (scontato del 10%)
+      const prezzoAcquistoDopoUnAnno = costoImpianto * 0.9;
+      
+      // CO2 risparmiata
+      const co2Risparmiata = produzione * 0.3 / 1000; // 0.3 kg per kWh, convertito in tonnellate
+      
+      // Dati per i grafici
+      const datiPartecipazione = [];
+      const datiAcquisto = [];
+      
+      let cumulativoPartecipazione = 0;
+      let cumulativoAcquisto = 0;
+      
+      // Simulazione guadagni per 20 anni
+      for (let i = 1; i <= 20; i++) {
+        // Scenario partecipazione
+        cumulativoPartecipazione += guadagnoAnnuo;
+        datiPartecipazione.push({
+          anno: i,
+          guadagnoAnnuo: guadagnoAnnuo,
+          guadagnoCumulativo: cumul
