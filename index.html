@@ -84,11 +84,11 @@
         <!-- Superficie -->
         <div class="mb-4">
           <label class="form-label fw-bold">Superficie disponibile (m²)</label>
-          <input type="range" class="form-range" min="100" max="5000" step="100" id="superficie" value="1000">
+          <input type="range" class="form-range" min="100" max="10000" step="100" id="superficie" value="1000">
           <div class="d-flex justify-content-between">
             <span>100 m²</span>
             <span id="superficie-value">1000 m²</span>
-            <span>5000 m²</span>
+            <span>10.000 m²</span>
           </div>
         </div>
         
@@ -210,10 +210,63 @@
   </div>
   
   <script>
-    // Aggiorna il valore del range
-    document.getElementById('superficie').addEventListener('input', function() {
-      document.getElementById('superficie-value').textContent = this.value + ' m²';
+    // Riferimenti agli elementi
+    const radioTetto = document.getElementById('tetto');
+    const radioTerreno = document.getElementById('terreno');
+    const sliderSuperficie = document.getElementById('superficie');
+    const superficieValue = document.getElementById('superficie-value');
+    
+    // Aggiorna il valore dello slider quando cambia
+    sliderSuperficie.addEventListener('input', function() {
+      superficieValue.textContent = this.value + ' m²';
     });
+    
+    // Funzione per aggiornare il range dello slider
+    function aggiornaRangeSlider() {
+      if (radioTetto.checked) {
+        // Impostazioni per tetto
+        sliderSuperficie.min = 100;
+        sliderSuperficie.max = 10000;
+        sliderSuperficie.step = 100;
+        
+        // Assicurati che il valore sia nel range
+        if (parseInt(sliderSuperficie.value) > 10000) {
+          sliderSuperficie.value = 10000;
+        } else if (parseInt(sliderSuperficie.value) < 100) {
+          sliderSuperficie.value = 100;
+        }
+        
+        // Aggiorna etichette
+        document.querySelectorAll('.d-flex.justify-content-between span')[0].textContent = '100 m²';
+        document.querySelectorAll('.d-flex.justify-content-between span')[2].textContent = '10.000 m²';
+      } else {
+        // Impostazioni per terreno
+        sliderSuperficie.min = 5000;
+        sliderSuperficie.max = 50000;
+        sliderSuperficie.step = 1000;
+        
+        // Assicurati che il valore sia nel range
+        if (parseInt(sliderSuperficie.value) < 5000) {
+          sliderSuperficie.value = 5000;
+        } else if (parseInt(sliderSuperficie.value) > 50000) {
+          sliderSuperficie.value = 50000;
+        }
+        
+        // Aggiorna etichette
+        document.querySelectorAll('.d-flex.justify-content-between span')[0].textContent = '5.000 m²';
+        document.querySelectorAll('.d-flex.justify-content-between span')[2].textContent = '50.000 m²';
+      }
+      
+      // Aggiorna il valore visualizzato
+      superficieValue.textContent = sliderSuperficie.value + ' m²';
+    }
+    
+    // Aggiungi listener agli elementi radio
+    radioTetto.addEventListener('change', aggiornaRangeSlider);
+    radioTerreno.addEventListener('change', aggiornaRangeSlider);
+    
+    // Esegui all'avvio per impostare lo stato iniziale
+    aggiornaRangeSlider();
     
     // Mappa le regioni alle zone
     const mappaRegioni = {
@@ -303,6 +356,9 @@
           guadagno20Anni: Math.floor(guadagnoAnnuo * 20)
         }
       });
+      
+      // Simulazione invio email
+      alert('Simulazione: calcolo completato! I risultati sono stati inviati a ' + email);
     });
   </script>
 </body>
