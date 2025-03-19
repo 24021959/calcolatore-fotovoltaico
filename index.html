@@ -62,7 +62,7 @@
 <body class="bg-light">
   <div class="container py-5 calculator-container">
     <div class="header-blue text-center">
-      <h1 class="mb-2">Calcolatore Fotovoltaico</h1>
+      <h1 class="mb-2">Simulazione del vostro potenziale risparmio</h1>
       <p class="mb-0">Scopri quanto puoi guadagnare con l'energia solare</p>
     </div>
     
@@ -220,6 +220,25 @@
               <p class="display-6" id="co2">0 ton/anno</p>
             </div>
           </div>
+          
+          <!-- Dettaglio economico -->
+          <div class="col-md-12 mb-3">
+            <div class="result-card">
+              <h5>Dettaglio economico</h5>
+              <div class="row">
+                <div class="col-md-6">
+                  <p><strong>Spesa attuale per energia:</strong> <span id="spesa-attuale">0 €</span>/anno</p>
+                  <p><strong>Energia autoconsumata:</strong> <span id="energia-autoconsumata">0</span> kWh (<span id="percentuale-autoconsumo">0</span>%)</p>
+                  <p><strong>Risparmio da autoconsumo:</strong> <span id="risparmio-autoconsumo">0 €</span>/anno</p>
+                </div>
+                <div class="col-md-6">
+                  <p><strong>Energia immessa in rete:</strong> <span id="energia-immessa">0</span> kWh</p>
+                  <p><strong>Guadagno da vendita:</strong> <span id="guadagno-vendita">0 €</span>/anno</p>
+                  <p><strong>Tua quota (al <span id="percentuale-partecipazione">17</span>%):</strong> <span id="guadagno-totale" class="text-success fw-bold">0 €</span>/anno</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div class="alert alert-success mt-3">
@@ -300,7 +319,7 @@
       "Sud Italia e Isole": ["Abruzzo", "Basilicata", "Calabria", "Campania", "Molise", "Puglia", "Sardegna", "Sicilia"]
     };
     
-    // Valori di consumo annuo
+    // Valori di consumo annuo (in euro)
     const valoriConsumoAnnuo = {
       "meno_8500": 8000,
       "tra_8500_17000": 12000,
@@ -339,32 +358,41 @@
         }
       }
       
+      // Ottieni il valore del consumo annuo in euro
+      const spesaAnnuaEnergia = valoriConsumoAnnuo[consumoAnnuo] || 12000;
+      
+      // Converti la spesa in consumo stimato di kWh (assumendo un costo medio di 0.25€/kWh per le aziende)
+      const consumoStimatoKWh = spesaAnnuaEnergia / 0.25;
+      
       // Coefficienti
       const fattoreRegionale = zonaGeografica === "Nord Italia" ? 1100 : (zonaGeografica === "Centro Italia" ? 1300 : 1500);
       const superficieUtile = superficie * (tipoSuperficie === 'tetto' ? 0.7 : 0.5);
       const densitaPotenza = tipoSuperficie === 'tetto' ? 0.18 : 0.14; // kWp per m²
       const fattoreConsumo = fasciaConsumo === 'giorno' ? 1.2 : 0.8;
       
-      // Ottieni il valore del consumo annuo
-      const valoreConsumoAnnuo = valoriConsumoAnnuo[consumoAnnuo] || 12000;
-      
       // Calcoli
       const potenza = superficieUtile * densitaPotenza;
       const produzione = potenza * fattoreRegionale;
       
-      // Calcola il fattore di autoconsumo basato sul consumo annuo
-      const fattoreAutoconsumo = Math.min(0.9, Math.max(0.3, valoreConsumoAnnuo / produzione / 100));
+      // Calcola quanta dell'energia prodotta può essere autoconsumata
+      // Non può essere più dell'effettivo consumo dell'azienda
+      const percentualeAutoconsumo = Math.min(0.8, consumoStimatoKWh / produzione);
+      const energiaAutoconsumata = produzione * percentualeAutoconsumo;
+      const energiaImmessaRete = produzione - energiaAutoconsumata;
       
-      // Valore economico annuo (assumendo 0.15€/kWh come valore dell'energia)
-      const valoreEnergia = produzione * 0.15 * fattoreConsumo;
+      // Risparmio diretto dall'autoconsumo (a 0.25€/kWh)
+      const risparmioAutoconsumo = energiaAutoconsumata * 0.25;
       
-      // La percentuale di partecipazione varia in base al consumo
-      // Chi consuma di più, può sfruttare meglio l'impianto
-      let percentualeBase = tipoSuperficie === 'tetto' ? 0.17 : 0.15;
-      let percentualePartecipazione = percentualeBase * (1 + (fattoreAutoconsumo - 0.5) * 0.2);
-      percentualePartecipazione = Math.min(0.22, Math.max(0.13, percentualePartecipazione));
+      // Guadagno dalla vendita dell'energia immessa in rete (a 0.12€/kWh)
+      const guadagnoVenditaEnergia = energiaImmessaRete * 0.12;
       
-      const guadagnoAnnuo = valoreEnergia * percentualePartecipazione;
+      // Totale beneficio economico annuo
+      const beneficioTotale = risparmioAutoconsumo + guadagnoVenditaEnergia;
+      
+      // La parte che spetta all'azienda in base alla percentuale di partecipazione
+      const percentualePartecipazione = tipoSuperficie === 'tetto' ? 0.17 : 0.15;
+      const guadagnoAnnuo = beneficioTotale * percentualePartecipazione;
+      
       const co2Risparmiata = produzione * 0.3 / 1000; // 0.3 kg per kWh, convertito in tonnellate
       
       // Formattazione
@@ -379,6 +407,16 @@
       document.getElementById('co2').textContent = formatNumber(co2Risparmiata) + ' ton/anno';
       document.getElementById('guadagno-20-anni').textContent = formatNumber(guadagnoAnnuo * 20) + ' €';
       document.getElementById('email-display').textContent = email;
+      
+      // Aggiorna dettaglio economico
+      document.getElementById('spesa-attuale').textContent = formatNumber(spesaAnnuaEnergia) + ' €';
+      document.getElementById('energia-autoconsumata').textContent = formatNumber(energiaAutoconsumata);
+      document.getElementById('percentuale-autoconsumo').textContent = Math.round(percentualeAutoconsumo * 100);
+      document.getElementById('risparmio-autoconsumo').textContent = formatNumber(risparmioAutoconsumo) + ' €';
+      document.getElementById('energia-immessa').textContent = formatNumber(energiaImmessaRete);
+      document.getElementById('guadagno-vendita').textContent = formatNumber(guadagnoVenditaEnergia) + ' €';
+      document.getElementById('percentuale-partecipazione').textContent = Math.round(percentualePartecipazione * 100);
+      document.getElementById('guadagno-totale').textContent = formatNumber(guadagnoAnnuo) + ' €';
       
       // Nascondi form e mostra risultati
       document.getElementById('risultati').style.display = 'block';
@@ -401,6 +439,11 @@
         risultati: {
           potenza: potenza.toFixed(2),
           produzione: Math.floor(produzione),
+          spesaAttuale: spesaAnnuaEnergia,
+          energiaAutoconsumata: Math.floor(energiaAutoconsumata),
+          energiaImmessa: Math.floor(energiaImmessaRete),
+          risparmioAutoconsumo: Math.floor(risparmioAutoconsumo),
+          guadagnoVendita: Math.floor(guadagnoVenditaEnergia),
           guadagnoAnnuo: Math.floor(guadagnoAnnuo),
           co2Risparmiata: co2Risparmiata.toFixed(2),
           guadagno20Anni: Math.floor(guadagnoAnnuo * 20)
