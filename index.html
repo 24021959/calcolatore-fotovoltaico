@@ -7,7 +7,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     .calculator-container { 
-      max-width: 800px; 
+      width: 90%; 
       margin: 0 auto;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     }
@@ -60,16 +60,20 @@
     .tab-content {
       background-color: #fff;
     }
+    .chart-container {
+      height: 250px;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body class="bg-light">
-  <div class="container py-5 calculator-container">
+  <div class="container-fluid py-5 calculator-container">
     <div class="header-blue text-center">
       <h1 class="mb-2">Calcolatore di Guadagno Fotovoltaico</h1>
-      <p class="mb-0">Calcola quanto potresti guadagnare installando un impianto fotovoltaico</p>
+      <p class="mb-0">Calcola quanto potresti guadagnare installando un impianto fotovoltaico sul tetto della tua azienda o su un tuo terreno senza investimento</p>
       <h2 class="mb-2">Noi investiamo, tu guadagni</h2>
     </div>
-    
+
     <div class="input-container" id="form-container">
       <form id="calculator-form">
         <!-- Scelta superficie -->
@@ -91,7 +95,7 @@
           <input type="range" class="form-range" min="100" max="10000" step="100" id="superficie" name="superficie" value="1000">
           <div class="d-flex justify-content-between">
             <span>100 m²</span>
-            <span id="superficie-value">1000 m²</span>
+            <span id="superficie-value">1.000 m²</span>
             <span>10.000 m²</span>
           </div>
         </div>
@@ -138,7 +142,7 @@
 
         <!-- Consumo medio annuo -->
         <div class="mb-4">
-          <label class="form-label fw-bold">Consumo medio annuo di energia:</label>
+          <label class="form-label fw-bold">Qual è il vostro consumo medio di energia elettrica annuo:</label>
           <div class="form-check">
             <input class="form-check-input" type="radio" name="consumoAnnuo" value="meno_8500" id="meno_8500" checked>
             <label class="form-check-label" for="meno_8500">meno di 8.500€</label>
@@ -166,15 +170,15 @@
           <h4 class="mb-3">Ricevi il tuo preventivo personalizzato</h4>
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Nome e Cognome <span class="text-danger">*</span></label>
+              <label class="form-label">Nome e Cognome</label>
               <input type="text" class="form-control" id="nome" name="nome" required>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Email <span class="text-danger">*</span></label>
+              <label class="form-label">Email</label>
               <input type="email" class="form-control" id="email" name="email" required>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Telefono <span class="text-danger">*</span></label>
+              <label class="form-label">Telefono</label>
               <input type="tel" class="form-control" id="telefono" name="telefono" required>
             </div>
             <div class="col-md-6">
@@ -184,6 +188,7 @@
           </div>
         </div>
 
+        <!-- Calcola button -->
         <button type="submit" class="btn btn-custom-primary w-100 mt-4 py-3">RICEVI LA SIMULAZIONE</button>
       </form>
     </div>
@@ -197,7 +202,7 @@
         <div class="alert alert-info mb-4">
           <strong>Abbiamo ricevuto la tua richiesta e invieremo i risultati a <span id="email-display"></span></strong>
         </div>
-        
+
         <div class="row">
           <div class="col-md-6 mb-3">
             <div class="result-card">
@@ -229,27 +234,30 @@
         <div class="mt-4">
           <ul class="nav nav-tabs" id="resultTabs" role="tablist">
             <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="partecipazione-tab" data-bs-toggle="tab" data-bs-target="#partecipazione" type="button" role="tab">Partecipazione ai guadagni</button>
+              <button class="nav-link active" id="partecipazione-tab" data-bs-toggle="tab" data-bs-target="#partecipazione" type="button" role="tab" aria-controls="partecipazione" aria-selected="true">Partecipazione ai guadagni</button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" id="acquisto-tab" data-bs-toggle="tab" data-bs-target="#acquisto" type="button" role="tab">Acquisto dopo un anno</button>
+              <button class="nav-link" id="acquisto-tab" data-bs-toggle="tab" data-bs-target="#acquisto" type="button" role="tab" aria-controls="acquisto" aria-selected="false">Acquisto dopo un anno</button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" id="confronto-tab" data-bs-toggle="tab" data-bs-target="#confronto" type="button" role="tab">Confronto</button>
+              <button class="nav-link" id="confronto-tab" data-bs-toggle="tab" data-bs-target="#confronto" type="button" role="tab" aria-controls="confronto" aria-selected="false">Confronto</button>
             </li>
           </ul>
+
           <div class="tab-content p-3 border border-top-0 rounded-bottom" id="resultTabsContent">
             <!-- Tab Partecipazione -->
-            <div class="tab-pane fade show active" id="partecipazione" role="tabpanel">
+            <div class="tab-pane fade show active" id="partecipazione" role="tabpanel" aria-labelledby="partecipazione-tab">
               <h5>Scenario: Partecipazione ai guadagni</h5>
-              <p>In questo scenario, continuerai a ricevere il <span id="percentuale-partecipazione">17</span>% del valore dell'energia prodotta.</p>
+              <p>In questo scenario, continuerai a ricevere il <span id="percentuale-partecipazione">17</span>% del valore dell'energia prodotta senza acquistare l'impianto.</p>
+
               <div class="row mt-3">
-                <div class="col-md-6">
+                <div class="col-12">
                   <p><strong>Guadagno annuo:</strong> <span id="guadagno-partecipazione">0 €</span></p>
                   <p><strong>Guadagno totale in 20 anni:</strong> <span id="guadagno-partecipazione-20" class="text-success fw-bold">0 €</span></p>
+                  <p><strong>Investimento necessario:</strong> <span class="text-success fw-bold">0 €</span></p>
                 </div>
-                <div class="col-md-6">
-                  <div style="height: 200px;">
+                <div class="col-12">
+                  <div class="chart-container">
                     <canvas id="grafico-partecipazione"></canvas>
                   </div>
                 </div>
@@ -257,17 +265,19 @@
             </div>
 
             <!-- Tab Acquisto -->
-            <div class="tab-pane fade" id="acquisto" role="tabpanel">
+            <div class="tab-pane fade" id="acquisto" role="tabpanel" aria-labelledby="acquisto-tab">
               <h5>Scenario: Acquisto dopo un anno</h5>
-              <p>In questo scenario, acquisterai l'impianto dopo un anno di partecipazione.</p>
+              <p>In questo scenario, acquisterai l'impianto dopo un anno di partecipazione ai guadagni.</p>
+
               <div class="row mt-3">
-                <div class="col-md-6">
-                  <p><strong>Prezzo di acquisto:</strong> <span id="prezzo-acquisto">0 €</span></p>
+                <div class="col-12">
+                  <p><strong>Prezzo di acquisto dopo un anno:</strong> <span id="prezzo-acquisto">0 €</span></p>
                   <p><strong>Guadagno annuo dopo acquisto:</strong> <span id="guadagno-acquisto">0 €</span></p>
-                  <p><strong>Tempo di recupero investimento:</strong> <span id="break-even">0</span> anni</p>
+                  <p><strong>Tempo di recupero dell'investimento:</strong> <span id="break-even">0</span> anni</p>
+                  <p><strong>Guadagno totale in 20 anni:</strong> <span id="guadagno-acquisto-20" class="text-success fw-bold">0 €</span></p>
                 </div>
-                <div class="col-md-6">
-                  <div style="height: 200px;">
+                <div class="col-12">
+                  <div class="chart-container">
                     <canvas id="grafico-acquisto"></canvas>
                   </div>
                 </div>
@@ -275,10 +285,12 @@
             </div>
 
             <!-- Tab Confronto -->
-            <div class="tab-pane fade" id="confronto" role="tabpanel">
+            <div class="tab-pane fade" id="confronto" role="tabpanel" aria-labelledby="confronto-tab">
               <h5>Confronto scenari</h5>
+              <p>Confronto tra la partecipazione continua ai guadagni e l'acquisto dell'impianto dopo un anno.</p>
+
               <div class="row mt-3">
-                <div class="col-md-5">
+                <div class="col-12">
                   <div class="table-responsive">
                     <table class="table table-bordered">
                       <thead>
@@ -289,6 +301,11 @@
                         </tr>
                       </thead>
                       <tbody>
+                        <tr>
+                          <td>Investimento</td>
+                          <td>0 €</td>
+                          <td><span id="investimento-confronto">0 €</span></td>
+                        </tr>
                         <tr>
                           <td>Guadagno a 20 anni</td>
                           <td><span id="guadagno-part-confronto">0 €</span></td>
@@ -304,8 +321,8 @@
                     </table>
                   </div>
                 </div>
-                <div class="col-md-7">
-                  <div style="height: 200px;">
+                <div class="col-12">
+                  <div class="chart-container">
                     <canvas id="grafico-confronto"></canvas>
                   </div>
                 </div>
@@ -317,62 +334,74 @@
         <div class="alert alert-success mt-4">
           <h5 class="mb-0">Con il nostro sistema puoi guadagnare <span id="guadagno-20-anni" class="fw-bold">0 €</span> in 20 anni senza investire!</h5>
         </div>
+
         <div class="mt-4 text-center">
+          <p>Un nostro consulente ti contatterà presto per fornirti maggiori dettagli</p>
           <button type="button" class="btn btn-outline-primary" onclick="window.location.reload()">Torna al calcolatore</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Script -->
+  <!-- Script di Bootstrap -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Chart.js per i grafici -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <script>
-    // Gestione slider superficie
-    const sliderSuperficie = document.getElementById('superficie');
-    const superficieValue = document.getElementById('superficie-value');
+    // Riferimenti agli elementi per lo slider
     const radioTetto = document.getElementById('tetto');
     const radioTerreno = document.getElementById('terreno');
+    const sliderSuperficie = document.getElementById('superficie');
+    const superficieValue = document.getElementById('superficie-value');
 
+    // Funzione per formattare i numeri con separatore di migliaia
+    function formatNumber(num) {
+      return Math.floor(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    // Aggiorna il valore dello slider quando cambia
+    sliderSuperficie.addEventListener('input', function() {
+      superficieValue.textContent = formatNumber(this.value) + ' m²';
+    });
+
+    // Funzione per aggiornare il range dello slider in base alla scelta (tetto o terreno)
     function aggiornaRangeSlider() {
       if (radioTetto.checked) {
         sliderSuperficie.min = 100;
         sliderSuperficie.max = 10000;
         sliderSuperficie.step = 100;
+        if (parseInt(sliderSuperficie.value) > 10000) {
+          sliderSuperficie.value = 10000;
+        } else if (parseInt(sliderSuperficie.value) < 100) {
+          sliderSuperficie.value = 100;
+        }
+        document.querySelectorAll('.d-flex.justify-content-between span')[0].textContent = '100 m²';
+        document.querySelectorAll('.d-flex.justify-content-between span')[2].textContent = '10.000 m²';
       } else {
         sliderSuperficie.min = 5000;
         sliderSuperficie.max = 50000;
         sliderSuperficie.step = 1000;
+        if (parseInt(sliderSuperficie.value) < 5000) {
+          sliderSuperficie.value = 5000;
+        } else if (parseInt(sliderSuperficie.value) > 50000) {
+          sliderSuperficie.value = 50000;
+        }
+        document.querySelectorAll('.d-flex.justify-content-between span')[0].textContent = '5.000 m²';
+        document.querySelectorAll('.d-flex.justify-content-between span')[2].textContent = '50.000 m²';
       }
-      sliderSuperficie.value = sliderSuperficie.min;
-      superficieValue.textContent = sliderSuperficie.value + ' m²';
+      superficieValue.textContent = formatNumber(sliderSuperficie.value) + ' m²';
     }
 
     radioTetto.addEventListener('change', aggiornaRangeSlider);
     radioTerreno.addEventListener('change', aggiornaRangeSlider);
-    sliderSuperficie.addEventListener('input', () => superficieValue.textContent = sliderSuperficie.value + ' m²');
     aggiornaRangeSlider();
 
-    // Mappa regioni
-    const mappaRegioni = {
-      "Nord Italia": ["Emilia-Romagna", "Friuli-Venezia Giulia", "Liguria", "Lombardia", "Piemonte", "Trentino-Alto Adige", "Valle d'Aosta", "Veneto"],
-      "Centro Italia": ["Lazio", "Marche", "Toscana", "Umbria"],
-      "Sud Italia e Isole": ["Abruzzo", "Basilicata", "Calabria", "Campania", "Molise", "Puglia", "Sardegna", "Sicilia"]
-    };
-
-    // Valori consumo annuo
-    const valoriConsumoAnnuo = {
-      "meno_8500": 8000,
-      "tra_8500_17000": 12000,
-      "tra_17000_42500": 25000,
-      "tra_42500_85000": 60000,
-      "piu_85000": 100000
-    };
-
-    // Creazione grafici
+    // Funzione per creare i grafici
     function creaGrafici(datiPartecipazione, datiAcquisto) {
-      // Grafico partecipazione
-      new Chart(document.getElementById('grafico-partecipazione'), {
+      // Grafico Partecipazione
+      const ctxPart = document.getElementById('grafico-partecipazione').getContext('2d');
+      new Chart(ctxPart, {
         type: 'line',
         data: {
           labels: datiPartecipazione.map(d => `Anno ${d.anno}`),
@@ -380,14 +409,29 @@
             label: 'Guadagno cumulativo',
             data: datiPartecipazione.map(d => d.guadagnoCumulativo),
             borderColor: '#4CAF50',
-            fill: true
+            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+            fill: true,
+            tension: 0.1
           }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Euro'
+              }
+            }
+          }
+        }
       });
 
-      // Grafico acquisto
-      new Chart(document.getElementById('grafico-acquisto'), {
+      // Grafico Acquisto
+      const ctxAcq = document.getElementById('grafico-acquisto').getContext('2d');
+      new Chart(ctxAcq, {
         type: 'line',
         data: {
           labels: datiAcquisto.map(d => `Anno ${d.anno}`),
@@ -395,128 +439,144 @@
             label: 'Guadagno cumulativo',
             data: datiAcquisto.map(d => d.guadagnoCumulativo),
             borderColor: '#FF5722',
-            fill: true
+            backgroundColor: 'rgba(255, 87, 34, 0.1)',
+            fill: true,
+            tension: 0.1
           }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Euro'
+              }
+            }
+          }
+        }
       });
 
-      // Grafico confronto
-      new Chart(document.getElementById('grafico-confronto'), {
+      // Grafico Confronto
+      const ctxConfronto = document.getElementById('grafico-confronto').getContext('2d');
+      new Chart(ctxConfronto, {
         type: 'line',
         data: {
-          labels: datiPartecipazione.map(d => `Anno ${d.anno}`),
-          datasets: [
-            {
-              label: 'Partecipazione',
-              data: datiPartecipazione.map(d => d.guadagnoCumulativo),
-              borderColor: '#4CAF50',
-              borderWidth: 2
-            },
-            {
-              label: 'Acquisto',
-              data: datiAcquisto.map(d => d.guadagnoCumulativo),
-              borderColor: '#FF5722',
-              borderWidth: 2
-            }
-          ]
+          labels: datiAcquisto.map(d => `Anno ${d.anno}`),
+          datasets: [{
+            label: 'Partecipazione',
+            data: datiPartecipazione.map(d => d.guadagnoCumulativo),
+            borderColor: '#4CAF50',
+            backgroundColor: 'transparent',
+            borderWidth: 2
+          }, {
+            label: 'Acquisto',
+            data: datiAcquisto.map(d => d.guadagnoCumulativo),
+            borderColor: '#FF5722',
+            backgroundColor: 'transparent',
+            borderWidth: 2
+          }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              title: {
+                display: true,
+                text: 'Euro'
+              }
+            }
+          }
+        }
       });
     }
 
-    // Gestione submit
+    // Gestione submit del form
     document.getElementById('calculator-form').addEventListener('submit', function(e) {
       e.preventDefault();
-      
-      // Validazione campi obbligatori
+
       const nome = document.getElementById('nome').value;
       const email = document.getElementById('email').value;
       const telefono = document.getElementById('telefono').value;
+
       if (!nome || !email || !telefono) {
         alert('Compila tutti i campi obbligatori');
         return;
       }
 
-      // Raccolta dati
       const superficie = parseInt(document.getElementById('superficie').value);
       const tipoSuperficie = document.querySelector('input[name="tipoSuperficie"]:checked').value;
-      const regione = document.getElementById('regione').value;
+      const regioneSelezionata = document.getElementById('regione').value;
       const fasciaConsumo = document.querySelector('input[name="fasciaConsumo"]:checked').value;
       const consumoAnnuo = document.querySelector('input[name="consumoAnnuo"]:checked').value;
 
-      // Determinazione zona geografica
-      let zona = "Centro Italia";
-      for (const [key, value] of Object.entries(mappaRegioni)) {
-        if (value.includes(regione)) {
-          zona = key;
+      const mappaRegioni = {
+        "Nord Italia": ["Emilia-Romagna", "Friuli-Venezia Giulia", "Liguria", "Lombardia", "Piemonte", "Trentino-Alto Adige", "Valle d'Aosta", "Veneto"],
+        "Centro Italia": ["Lazio", "Marche", "Toscana", "Umbria"],
+        "Sud Italia e Isole": ["Abruzzo", "Basilicata", "Calabria", "Campania", "Molise", "Puglia", "Sardegna", "Sicilia"]
+      };
+      let zonaGeografica = "Centro Italia";
+      for (const [zona, regioni] of Object.entries(mappaRegioni)) {
+        if (regioni.includes(regioneSelezionata)) {
+          zonaGeografica = zona;
           break;
         }
       }
 
-      // Calcoli principali
-      const fattoreRegionale = zona === "Nord Italia" ? 1100 : zona === "Centro Italia" ? 1300 : 1500;
+      const valoriConsumoAnnuo = {
+        "meno_8500": 8000,
+        "tra_8500_17000": 12000,
+        "tra_17000_42500": 25000,
+        "tra_42500_85000": 60000,
+        "piu_85000": 100000
+      };
+      const spesaAnnuaEnergia = valoriConsumoAnnuo[consumoAnnuo] || 12000;
+      const consumoStimatoKWh = spesaAnnuaEnergia / 0.25;
+
+      const fattoreRegionale = zonaGeografica === "Nord Italia" ? 1100 : (zonaGeografica === "Centro Italia" ? 1300 : 1500);
       const superficieUtile = superficie * (tipoSuperficie === 'tetto' ? 0.7 : 0.5);
       const densitaPotenza = tipoSuperficie === 'tetto' ? 0.18 : 0.14;
-      const potenza = superficieUtile * densitaPotenza;
-      const produzione = potenza * fattoreRegionale;
-      const valoreEnergia = produzione * 0.15 * (fasciaConsumo === 'giorno' ? 1.2 : 0.8);
-      const percentualePartecipazione = tipoSuperficie === 'tetto' ? 0.17 : 0.15;
-      const guadagnoAnnuo = valoreEnergia * percentualePartecipazione;
-      const costoImpianto = potenza * 800;
-      const prezzoAcquisto = costoImpianto * 0.9;
-      const co2Risparmiata = produzione * 0.3 / 1000;
+      const fattoreConsumo = fasciaConsumo === 'giorno' ? 1.2 : 0.8;
 
-      // Simulazione 20 anni
+      const potenza = Math.floor(superficieUtile * densitaPotenza);
+      const produzione = Math.floor(potenza * fattoreRegionale);
+      const percentualePartecipazione = tipoSuperficie === 'tetto' ? 0.17 : 0.15;
+      const valoreEnergia = produzione * 0.15 * fattoreConsumo;
+      const guadagnoAnnuo = Math.floor(valoreEnergia * percentualePartecipazione);
+      const costoImpianto = Math.floor(potenza * 800);
+      const prezzoAcquistoDopoUnAnno = Math.floor(costoImpianto * 0.9);
+      const co2Risparmiata = Math.floor(produzione * 0.3 / 1000);
+
       const datiPartecipazione = [];
       const datiAcquisto = [];
-      let cumulativoPart = 0;
-      let cumulativoAcq = 0;
+      let cumulativoPartecipazione = 0;
+      let cumulativoAcquisto = 0;
 
       for (let i = 1; i <= 20; i++) {
-        cumulativoPart += guadagnoAnnuo;
+        cumulativoPartecipazione += guadagnoAnnuo;
         datiPartecipazione.push({
           anno: i,
-          guadagnoCumulativo: Math.round(cumulativoPart)
+          guadagnoAnnuo: guadagnoAnnuo,
+          guadagnoCumulativo: Math.floor(cumulativoPartecipazione)
         });
-
         if (i === 1) {
-          cumulativoAcq -= prezzoAcquisto;
+          cumulativoAcquisto += -prezzoAcquistoDopoUnAnno;
+          datiAcquisto.push({
+            anno: i,
+            guadagnoAnnuo: -prezzoAcquistoDopoUnAnno,
+            guadagnoCumulativo: Math.floor(cumulativoAcquisto)
+          });
         } else {
-          cumulativoAcq += valoreEnergia;
+          cumulativoAcquisto += guadagnoAnnuo;
+          datiAcquisto.push({
+            anno: i,
+            guadagnoAnnuo: guadagnoAnnuo,
+            guadagnoCumulativo: Math.floor(cumulativoAcquisto)
+          });
         }
-        datiAcquisto.push({
-          anno: i,
-          guadagnoCumulativo: Math.round(cumulativoAcq)
-        });
       }
 
-      // Popolamento risultati
-      document.getElementById('email-display').textContent = email;
-      document.getElementById('potenza').textContent = potenza.toFixed(2) + ' kWp';
-      document.getElementById('produzione').textContent = produzione.toFixed(0) + ' kWh';
-      document.getElementById('guadagno').textContent = guadagnoAnnuo.toFixed(2) + ' €';
-      document.getElementById('co2').textContent = co2Risparmiata.toFixed(2) + ' ton/anno';
-      document.getElementById('percentuale-partecipazione').textContent = (percentualePartecipazione * 100).toFixed(0);
-      document.getElementById('guadagno-partecipazione').textContent = guadagnoAnnuo.toFixed(2) + ' €';
-      document.getElementById('guadagno-partecipazione-20').textContent = cumulativoPart.toFixed(2) + ' €';
-      document.getElementById('prezzo-acquisto').textContent = prezzoAcquisto.toFixed(2) + ' €';
-      document.getElementById('guadagno-acquisto').textContent = valoreEnergia.toFixed(2) + ' €';
-      document.getElementById('break-even').textContent = Math.ceil(prezzoAcquisto / valoreEnergia);
-      document.getElementById('guadagno-20-anni').textContent = cumulativoPart.toFixed(2) + ' €';
-
-      // Confronto
-      const guadagnoAcquisto20 = datiAcquisto[19].guadagnoCumulativo;
-      document.getElementById('guadagno-part-confronto').textContent = cumulativoPart.toFixed(2) + ' €';
-      document.getElementById('guadagno-acq-confronto').textContent = guadagnoAcquisto20.toFixed(2) + ' €';
-      document.getElementById('differenza-guadagno').textContent = Math.abs(guadagnoAcquisto20 - cumulativoPart).toFixed(2) + ' €';
-      document.getElementById('scenario-migliore').textContent = guadagnoAcquisto20 > cumulativoPart ? 'a favore dell\'acquisto' : 'a favore della partecipazione';
-
-      // Mostra risultati
-      document.getElementById('risultati').style.display = 'block';
-      creaGrafici(datiPartecipazione, datiAcquisto);
-    });
-  </script>
-</body>
-</html>
-
+      // Aggiorna i risultati nel DOM con form
