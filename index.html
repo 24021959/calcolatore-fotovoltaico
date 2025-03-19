@@ -585,13 +585,4 @@
       const datiAcquisto = [];
       
       let cumulativoPartecipazione = 0;
-      let cumulativoAcquisto = 0;
-      
-      // Simulazione guadagni per 20 anni
-      for (let i = 1; i <= 20; i++) {
-        // Scenario partecipazione
-        cumulativoPartecipazione += guadagnoAnnuo;
-        datiPartecipazione.push({
-          anno: i,
-          guadagnoAnnuo: guadagnoAnnuo,
-          guadagnoCumulativo: cumul
+      let cumulativoAcquisto = -prezzoAcquistoDopoUnAnno; //
