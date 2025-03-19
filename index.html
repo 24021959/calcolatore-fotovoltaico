@@ -62,7 +62,8 @@
 <body class="bg-light">
   <div class="container py-5 calculator-container">
     <div class="header-blue text-center">
-      <h1 class="mb-2">Scopri quanto puoi guadagnare con l'energia solare</h1>
+      <h1 class="mb-2">Calcolatore Fotovoltaico</h1>
+      <p class="mb-0">Scopri quanto puoi guadagnare con l'energia solare</p>
     </div>
     
     <div class="input-container" id="form-container">
@@ -128,6 +129,31 @@
           <div class="form-check">
             <input class="form-check-input" type="radio" name="fasciaConsumo" value="notte" id="notte">
             <label class="form-check-label" for="notte">Principalmente di notte</label>
+          </div>
+        </div>
+        
+        <!-- Consumo medio annuo -->
+        <div class="mb-4">
+          <label class="form-label fw-bold">Qual è il vostro consumo medio di energia elettrica annuo:</label>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="consumoAnnuo" value="meno_8500" id="meno_8500" checked>
+            <label class="form-check-label" for="meno_8500">meno di 8.500€</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="consumoAnnuo" value="tra_8500_17000" id="tra_8500_17000">
+            <label class="form-check-label" for="tra_8500_17000">tra i 8.500€ e i 17.000€</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="consumoAnnuo" value="tra_17000_42500" id="tra_17000_42500">
+            <label class="form-check-label" for="tra_17000_42500">tra i 17.000€ e i 42.500€</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="consumoAnnuo" value="tra_42500_85000" id="tra_42500_85000">
+            <label class="form-check-label" for="tra_42500_85000">tra i 42.500€ e i 85.000€</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="consumoAnnuo" value="piu_85000" id="piu_85000">
+            <label class="form-check-label" for="piu_85000">più di 85.000€</label>
           </div>
         </div>
         
@@ -274,6 +300,15 @@
       "Sud Italia e Isole": ["Abruzzo", "Basilicata", "Calabria", "Campania", "Molise", "Puglia", "Sardegna", "Sicilia"]
     };
     
+    // Valori di consumo annuo
+    const valoriConsumoAnnuo = {
+      "meno_8500": 8000,
+      "tra_8500_17000": 12000,
+      "tra_17000_42500": 25000,
+      "tra_42500_85000": 60000,
+      "piu_85000": 100000
+    };
+    
     // Gestione submit del form
     document.getElementById('calculator-form').addEventListener('submit', function(e) {
       e.preventDefault();
@@ -293,6 +328,7 @@
       const tipoSuperficie = document.querySelector('input[name="tipoSuperficie"]:checked').value;
       const regioneSelezionata = document.getElementById('regione').value;
       const fasciaConsumo = document.querySelector('input[name="fasciaConsumo"]:checked').value;
+      const consumoAnnuo = document.querySelector('input[name="consumoAnnuo"]:checked').value;
       
       // Determina la zona geografica
       let zonaGeografica = "Centro Italia"; // Default
@@ -309,11 +345,25 @@
       const densitaPotenza = tipoSuperficie === 'tetto' ? 0.18 : 0.14; // kWp per m²
       const fattoreConsumo = fasciaConsumo === 'giorno' ? 1.2 : 0.8;
       
+      // Ottieni il valore del consumo annuo
+      const valoreConsumoAnnuo = valoriConsumoAnnuo[consumoAnnuo] || 12000;
+      
       // Calcoli
       const potenza = superficieUtile * densitaPotenza;
       const produzione = potenza * fattoreRegionale;
-      const valoreEnergia = produzione * 0.15 * fattoreConsumo; // 0.15€ per kWh
-      const percentualePartecipazione = tipoSuperficie === 'tetto' ? 0.17 : 0.15;
+      
+      // Calcola il fattore di autoconsumo basato sul consumo annuo
+      const fattoreAutoconsumo = Math.min(0.9, Math.max(0.3, valoreConsumoAnnuo / produzione / 100));
+      
+      // Valore economico annuo (assumendo 0.15€/kWh come valore dell'energia)
+      const valoreEnergia = produzione * 0.15 * fattoreConsumo;
+      
+      // La percentuale di partecipazione varia in base al consumo
+      // Chi consuma di più, può sfruttare meglio l'impianto
+      let percentualeBase = tipoSuperficie === 'tetto' ? 0.17 : 0.15;
+      let percentualePartecipazione = percentualeBase * (1 + (fattoreAutoconsumo - 0.5) * 0.2);
+      percentualePartecipazione = Math.min(0.22, Math.max(0.13, percentualePartecipazione));
+      
       const guadagnoAnnuo = valoreEnergia * percentualePartecipazione;
       const co2Risparmiata = produzione * 0.3 / 1000; // 0.3 kg per kWh, convertito in tonnellate
       
@@ -347,6 +397,7 @@
         superficie,
         regione: regioneSelezionata,
         fasciaConsumo,
+        consumoAnnuo,
         risultati: {
           potenza: potenza.toFixed(2),
           produzione: Math.floor(produzione),
