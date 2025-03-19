@@ -81,7 +81,7 @@
     </div>
     
     <div class="input-container" id="form-container">
-      <form id="calculator-form" method="POST">
+      <form id="calculator-form">
         <!-- Scelta superficie -->
         <div class="mb-4">
           <label class="form-label fw-bold">Dove vuoi installare l'impianto?</label>
@@ -194,27 +194,9 @@
           </div>
         </div>
         
-        <!-- Campi nascosti per i risultati -->
-        <input type="hidden" id="hidden_potenza" name="potenza" value="">
-        <input type="hidden" id="hidden_produzione" name="produzione" value="">
-        <input type="hidden" id="hidden_guadagno" name="guadagno" value="">
-        <input type="hidden" id="hidden_guadagno20anni" name="guadagno20anni" value="">
-        <input type="hidden" id="hidden_spesaAttuale" name="spesaAttuale" value="">
-        <input type="hidden" id="hidden_co2" name="co2" value="">
-        
         <!-- Calcola button -->
         <button type="submit" class="btn btn-custom-primary w-100 mt-4 py-3">RICEVI LA SIMULAZIONE</button>
       </form>
-      
-      <!-- Indicatore di invio -->
-      <div id="sending-indicator" class="sending-indicator">
-        <div class="d-flex justify-content-center">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Invio in corso...</span>
-          </div>
-        </div>
-        <p class="mt-3">Invio in corso...</p>
-      </div>
     </div>
     
     <!-- Risultati -->
@@ -224,7 +206,7 @@
       </div>
       <div class="p-4">
         <div class="alert alert-info mb-4">
-          <strong>Abbiamo inviato il tuo preventivo personalizzato a <span id="email-display"></span></strong>
+          <strong>Abbiamo ricevuto la tua richiesta e invieremo i risultati a <span id="email-display"></span></strong>
         </div>
         
         <div class="row">
@@ -594,4 +576,22 @@
       // Non può essere più dell'effettivo consumo dell'azienda
       const percentualeAutoconsumo = Math.min(0.8, consumoStimatoKWh / produzione);
       const energiaAutoconsumata = produzione * percentualeAutoconsumo;
-      const energiaImmessaRete = produzione - energiaAutoc
+      const energiaImmessaRete = produzione - energiaAutoconsumata;
+      
+      // Risparmio diretto dall'autoconsumo (a 0.25€/kWh)
+      const risparmioAutoconsumo = energiaAutoconsumata * 0.25;
+      
+      // Guadagno dalla vendita dell'energia immessa in rete (a 0.12€/kWh)
+      const guadagnoVenditaEnergia = energiaImmessaRete * 0.12;
+      
+      // Totale beneficio economico annuo
+      const beneficioTotale = risparmioAutoconsumo + guadagnoVenditaEnergia;
+      
+      // La parte che spetta all'azienda in base alla percentuale di partecipazione
+      const percentualePartecipazione = tipoSuperficie === 'tetto' ? 0.17 : 0.15;
+      const guadagnoAnnuo = beneficioTotale * percentualePartecipazione;
+      
+      // Valore economico dell'energia prodotta
+      const valoreEnergia = produzione * 0.15 * fattoreConsumo;
+      
+      // Costo impi
