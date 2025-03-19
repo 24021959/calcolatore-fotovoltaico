@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calcolatore Fotovoltaico</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .calculator-container { 
+      max-width: 800px; 
+      margin: 0 auto;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+    .result-card { 
+      background-color: #f8f9fa; 
+      padding: 20px; 
+      border-radius: 10px; 
+      margin-top: 20px; 
+      transition: all 0.3s ease;
+    }
+    .result-card:hover {
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .header-blue {
+      background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+      color: white;
+      padding: 2rem 1rem;
+      border-radius: 8px 8px 0 0;
+      margin-bottom: 0;
+    }
+    .input-container {
+      background-color: white;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    .btn-custom-primary {
+      background-color: #1976d2;
+      border-color: #1976d2;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .btn-custom-primary:hover {
+      background-color: #1565c0;
+      border-color: #1565c0;
+    }
+    .results-container {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .results-header {
+      background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 8px 8px 0 0;
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <div class="container py-5 calculator-container">
+    <div class="header-blue text-center">
+      <h1 class="mb-2">Simulazione del vostro potenziale risparmio</h1>
+      <p class="mb-0">Scopri quanto puoi guadagnare con l'energia solare</p>
+    </div>
+    
+    <div class="input-container" id="form-container">
+      <form id="calculator-form">
+        <!-- Scelta superficie -->
+        <div class="mb-4">
+          <label class="form-label fw-bold">Dove vuoi installare l'impianto?</label>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="tipoSuperficie" value="tetto" id="tetto" checked>
+            <label class="form-check-label" for="tetto">Tetto</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="tipoSuperficie" value="terreno" id="terreno">
+            <label class="form-check-label" for="terreno">Terreno</label>
+          </div>
+        </div>
+        
+        <!-- Superficie -->
+        <div class="mb-4">
+          <label class="form-label fw-bold">Superficie disponibile (m²)</label>
+          <input type="range" class="form-range" min="100" max="5000" step="100" id="superficie" value="1000">
+          <div class="d-flex justify-content-between">
+            <span>100 m²</span>
+            <span id="superficie-value">1000 m²</span>
+            <span>5000 m²</span>
+          </div>
+        </div>
+        
+        <!-- Regione -->
+        <div class="mb-4">
+          <label class="form-label fw-bold">Regione</label>
+          <select class="form-select" id="regione">
+            <option value="Abruzzo">Abruzzo</option>
+            <option value="Basilicata">Basilicata</option>
+            <option value="Calabria">Calabria</option>
+            <option value="Campania">Campania</option>
+            <option value="Emilia-Romagna">Emilia-Romagna</option>
+            <option value="Friuli-Venezia Giulia">Friuli-Venezia Giulia</option>
+            <option value="Lazio">Lazio</option>
+            <option value="Liguria">Liguria</option>
+            <option value="Lombardia" selected>Lombardia</option>
+            <option value="Marche">Marche</option>
+            <option value="Molise">Molise</option>
+            <option value="Piemonte">Piemonte</option>
+            <option value="Puglia">Puglia</option>
+            <option value="Sardegna">Sardegna</option>
+            <option value="Sicilia">Sicilia</option>
+            <option value="Toscana">Toscana</option>
+            <option value="Trentino-Alto Adige">Trentino-Alto Adige</option>
+            <option value="Umbria">Umbria</option>
+            <option value="Valle d'Aosta">Valle d'Aosta</option>
+            <option value="Veneto">Veneto</option>
+          </select>
+        </div>
+        
+        <!-- Fascia di consumo -->
+        <div class="mb-4">
+          <label class="form-label fw-bold">Quando consumi più energia?</label>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="fasciaConsumo" value="giorno" id="giorno" checked>
+            <label class="form-check-label" for="giorno">Principalmente di giorno</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="fasciaConsumo" value="notte" id="notte">
+            <label class="form-check-label" for="notte">Principalmente di notte</label>
+          </div>
+        </div>
+        
+        <!-- Form di contatto -->
+        <div class="mt-4 p-4 bg-light rounded border">
+          <h4 class="mb-3">Ricevi il tuo preventivo personalizzato</h4>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Nome e Cognome <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="nome" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" id="email" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Telefono <span class="text-danger">*</span></label>
+              <input type="tel" class="form-control" id="telefono" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Ragione Sociale</label>
+              <input type="text" class="form-control" id="ragioneSociale">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Calcola button -->
+        <button type="submit" class="btn btn-custom-primary w-100 mt-4 py-3">RICEVI LA SIMULAZIONE</button>
+      </form>
+    </div>
+    
+    <!-- Risultati -->
+    <div id="risultati" class="results-container" style="display: none;">
+      <div class="results-header">
+        <h3 class="mb-0">Grazie! Ecco i risultati della tua simulazione</h3>
+      </div>
+      <div class="p-4">
+        <div class="alert alert-info mb-4">
+          <strong>Abbiamo inviato il tuo preventivo personalizzato a <span id="email-display"></span></strong>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <div class="result-card">
+              <h5>Potenza installabile</h5>
+              <p class="display-6" id="potenza">0 kWp</p>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="result-card">
+              <h5>Produzione annua</h5>
+              <p class="display-6" id="produzione">0 kWh</p>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="result-card">
+              <h5>Guadagno annuo</h5>
+              <p class="display-6 text-success" id="guadagno">0 €</p>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="result-card">
+              <h5>Risparmio CO₂</h5>
+              <p class="display-6" id="co2">0 ton/anno</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="alert alert-success mt-3">
+          <h5 class="mb-0">Con il nostro sistema puoi guadagnare <span id="guadagno-20-anni" class="fw-bold">0 €</span> in 20 anni senza investire!</h5>
+        </div>
+        
+        <div class="mt-4 text-center">
+          <p>Un nostro consulente ti contatterà presto per fornirti maggiori dettagli</p>
+          <button type="button" class="btn btn-outline-primary" onclick="window.location.reload()">Torna al calcolatore</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Aggiorna il valore del range
+    document.getElementById('superficie').addEventListener('input', function() {
+      document.getElementById('superficie-value').textContent = this.value + ' m²';
+    });
+    
+    // Mappa le regioni alle zone
+    const mappaRegioni = {
+      "Nord Italia": ["Emilia-Romagna", "Friuli-Venezia Giulia", "Liguria", "Lombardia", "Piemonte", "Trentino-Alto Adige", "Valle d'Aosta", "Veneto"],
+      "Centro Italia": ["Lazio", "Marche", "Toscana", "Umbria"],
+      "Sud Italia e Isole": ["Abruzzo", "Basilicata", "Calabria", "Campania", "Molise", "Puglia", "Sardegna", "Sicilia"]
+    };
+    
+    // Gestione submit del form
+    document.getElementById('calculator-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Verifica che i campi obbligatori siano compilati
+      const nome = document.getElementById('nome').value;
+      const email = document.getElementById('email').value;
+      const telefono = document.getElementById('telefono').value;
+      
+      if (!nome || !email || !telefono) {
+        alert('Compila tutti i campi obbligatori');
+        return;
+      }
+      
+      // Recupera valori
+      const superficie = parseInt(document.getElementById('superficie').value);
+      const tipoSuperficie = document.querySelector('input[name="tipoSuperficie"]:checked').value;
+      const regioneSelezionata = document.getElementById('regione').value;
+      const fasciaConsumo = document.querySelector('input[name="fasciaConsumo"]:checked').value;
+      
+      // Determina la zona geografica
+      let zonaGeografica = "Centro Italia"; // Default
+      for (const [zona, regioni] of Object.entries(mappaRegioni)) {
+        if (regioni.includes(regioneSelezionata)) {
+          zonaGeografica = zona;
+          break;
+        }
+      }
+      
+      // Coefficienti
+      const fattoreRegionale = zonaGeografica === "Nord Italia" ? 1100 : (zonaGeografica === "Centro Italia" ? 1300 : 1500);
+      const superficieUtile = superficie * (tipoSuperficie === 'tetto' ? 0.7 : 0.5);
+      const densitaPotenza = tipoSuperficie === 'tetto' ? 0.18 : 0.14; // kWp per m²
+      const fattoreConsumo = fasciaConsumo === 'giorno' ? 1.2 : 0.8;
+      
+      // Calcoli
+      const potenza = superficieUtile * densitaPotenza;
+      const produzione = potenza * fattoreRegionale;
+      const valoreEnergia = produzione * 0.15 * fattoreConsumo; // 0.15€ per kWh
+      const percentualePartecipazione = tipoSuperficie === 'tetto' ? 0.17 : 0.15;
+      const guadagnoAnnuo = valoreEnergia * percentualePartecipazione;
+      const co2Risparmiata = produzione * 0.3 / 1000; // 0.3 kg per kWh, convertito in tonnellate
+      
+      // Formattazione
+      const formatNumber = (num) => {
+        return Math.floor(num).toLocaleString('it-IT');
+      };
+      
+      // Aggiorna risultati
+      document.getElementById('potenza').textContent = formatNumber(potenza) + ' kWp';
+      document.getElementById('produzione').textContent = formatNumber(produzione) + ' kWh';
+      document.getElementById('guadagno').textContent = formatNumber(guadagnoAnnuo) + ' €';
+      document.getElementById('co2').textContent = formatNumber(co2Risparmiata) + ' ton/anno';
+      document.getElementById('guadagno-20-anni').textContent = formatNumber(guadagnoAnnuo * 20) + ' €';
+      document.getElementById('email-display').textContent = email;
+      
+      // Nascondi form e mostra risultati
+      document.getElementById('risultati').style.display = 'block';
+      document.getElementById('form-container').style.display = 'none';
+      
+      // Scroll ai risultati
+      document.getElementById('risultati').scrollIntoView({ behavior: 'smooth' });
+      
+      // Qui in una vera implementazione invieresti i dati al server
+      console.log('Dati da inviare al server:', {
+        nome,
+        email, 
+        telefono,
+        ragioneSociale: document.getElementById('ragioneSociale').value,
+        tipoSuperficie,
+        superficie,
+        regione: regioneSelezionata,
+        fasciaConsumo,
+        risultati: {
+          potenza: potenza.toFixed(2),
+          produzione: Math.floor(produzione),
+          guadagnoAnnuo: Math.floor(guadagnoAnnuo),
+          co2Risparmiata: co2Risparmiata.toFixed(2),
+          guadagno20Anni: Math.floor(guadagnoAnnuo * 20)
+        }
+      });
+    });
+  </script>
+</body>
+</html>
