@@ -57,6 +57,19 @@
       padding: 1.5rem;
       border-radius: 8px 8px 0 0;
     }
+    .sending-indicator {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .spinner-border {
+      width: 3rem;
+      height: 3rem;
+    }
+    .tab-content {
+      background-color: #fff;
+    }
   </style>
 </head>
 <body class="bg-light">
@@ -68,7 +81,7 @@
     </div>
     
     <div class="input-container" id="form-container">
-      <form id="calculator-form">
+      <form id="calculator-form" method="POST">
         <!-- Scelta superficie -->
         <div class="mb-4">
           <label class="form-label fw-bold">Dove vuoi installare l'impianto?</label>
@@ -85,7 +98,7 @@
         <!-- Superficie -->
         <div class="mb-4">
           <label class="form-label fw-bold">Superficie disponibile (m²)</label>
-          <input type="range" class="form-range" min="100" max="10000" step="100" id="superficie" value="1000">
+          <input type="range" class="form-range" min="100" max="10000" step="100" id="superficie" name="superficie" value="1000">
           <div class="d-flex justify-content-between">
             <span>100 m²</span>
             <span id="superficie-value">1000 m²</span>
@@ -96,7 +109,7 @@
         <!-- Regione -->
         <div class="mb-4">
           <label class="form-label fw-bold">Regione</label>
-          <select class="form-select" id="regione">
+          <select class="form-select" id="regione" name="regione">
             <option value="Abruzzo">Abruzzo</option>
             <option value="Basilicata">Basilicata</option>
             <option value="Calabria">Calabria</option>
@@ -164,26 +177,44 @@
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">Nome e Cognome <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="nome" required>
+              <input type="text" class="form-control" id="nome" name="nome" required>
             </div>
             <div class="col-md-6">
               <label class="form-label">Email <span class="text-danger">*</span></label>
-              <input type="email" class="form-control" id="email" required>
+              <input type="email" class="form-control" id="email" name="email" required>
             </div>
             <div class="col-md-6">
               <label class="form-label">Telefono <span class="text-danger">*</span></label>
-              <input type="tel" class="form-control" id="telefono" required>
+              <input type="tel" class="form-control" id="telefono" name="telefono" required>
             </div>
             <div class="col-md-6">
               <label class="form-label">Ragione Sociale</label>
-              <input type="text" class="form-control" id="ragioneSociale">
+              <input type="text" class="form-control" id="ragioneSociale" name="ragioneSociale">
             </div>
           </div>
         </div>
         
+        <!-- Campi nascosti per i risultati -->
+        <input type="hidden" id="hidden_potenza" name="potenza" value="">
+        <input type="hidden" id="hidden_produzione" name="produzione" value="">
+        <input type="hidden" id="hidden_guadagno" name="guadagno" value="">
+        <input type="hidden" id="hidden_guadagno20anni" name="guadagno20anni" value="">
+        <input type="hidden" id="hidden_spesaAttuale" name="spesaAttuale" value="">
+        <input type="hidden" id="hidden_co2" name="co2" value="">
+        
         <!-- Calcola button -->
         <button type="submit" class="btn btn-custom-primary w-100 mt-4 py-3">RICEVI LA SIMULAZIONE</button>
       </form>
+      
+      <!-- Indicatore di invio -->
+      <div id="sending-indicator" class="sending-indicator">
+        <div class="d-flex justify-content-center">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Invio in corso...</span>
+          </div>
+        </div>
+        <p class="mt-3">Invio in corso...</p>
+      </div>
     </div>
     
     <!-- Risultati -->
@@ -221,28 +252,110 @@
               <p class="display-6" id="co2">0 ton/anno</p>
             </div>
           </div>
+        </div>
+        
+        <!-- Tabbed risultati -->
+        <div class="mt-4">
+          <ul class="nav nav-tabs" id="resultTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="partecipazione-tab" data-bs-toggle="tab" data-bs-target="#partecipazione" type="button" role="tab" aria-controls="partecipazione" aria-selected="true">Partecipazione ai guadagni</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="acquisto-tab" data-bs-toggle="tab" data-bs-target="#acquisto" type="button" role="tab" aria-controls="acquisto" aria-selected="false">Acquisto dopo un anno</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="confronto-tab" data-bs-toggle="tab" data-bs-target="#confronto" type="button" role="tab" aria-controls="confronto" aria-selected="false">Confronto</button>
+            </li>
+          </ul>
           
-          <!-- Dettaglio economico -->
-          <div class="col-md-12 mb-3">
-            <div class="result-card">
-              <h5>Dettaglio economico</h5>
-              <div class="row">
+          <div class="tab-content p-3 border border-top-0 rounded-bottom" id="resultTabsContent">
+            <!-- Tab Partecipazione -->
+            <div class="tab-pane fade show active" id="partecipazione" role="tabpanel" aria-labelledby="partecipazione-tab">
+              <h5>Scenario: Partecipazione ai guadagni</h5>
+              <p>In questo scenario, continuerai a ricevere il <span id="percentuale-partecipazione">17</span>% del valore dell'energia prodotta senza acquistare l'impianto.</p>
+              
+              <div class="row mt-3">
                 <div class="col-md-6">
-                  <p><strong>Spesa attuale per energia:</strong> <span id="spesa-attuale">0 €</span>/anno</p>
-                  <p><strong>Energia autoconsumata:</strong> <span id="energia-autoconsumata">0</span> kWh (<span id="percentuale-autoconsumo">0</span>%)</p>
-                  <p><strong>Risparmio da autoconsumo:</strong> <span id="risparmio-autoconsumo">0 €</span>/anno</p>
+                  <p><strong>Guadagno annuo:</strong> <span id="guadagno-partecipazione">0 €</span></p>
+                  <p><strong>Guadagno totale in 20 anni:</strong> <span id="guadagno-partecipazione-20" class="text-success fw-bold">0 €</span></p>
+                  <p><strong>Investimento necessario:</strong> <span class="text-success fw-bold">0 €</span></p>
                 </div>
                 <div class="col-md-6">
-                  <p><strong>Energia immessa in rete:</strong> <span id="energia-immessa">0</span> kWh</p>
-                  <p><strong>Guadagno da vendita:</strong> <span id="guadagno-vendita">0 €</span>/anno</p>
-                  <p><strong>Tua quota (al <span id="percentuale-partecipazione">17</span>%):</strong> <span id="guadagno-totale" class="text-success fw-bold">0 €</span>/anno</p>
+                  <div style="height: 200px;">
+                    <canvas id="grafico-partecipazione"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Tab Acquisto -->
+            <div class="tab-pane fade" id="acquisto" role="tabpanel" aria-labelledby="acquisto-tab">
+              <h5>Scenario: Acquisto dopo un anno</h5>
+              <p>In questo scenario, acquisterai l'impianto dopo un anno di partecipazione ai guadagni.</p>
+              
+              <div class="row mt-3">
+                <div class="col-md-6">
+                  <p><strong>Prezzo di acquisto dopo un anno:</strong> <span id="prezzo-acquisto">0 €</span></p>
+                  <p><strong>Guadagno annuo dopo acquisto:</strong> <span id="guadagno-acquisto">0 €</span></p>
+                  <p><strong>Tempo di recupero dell'investimento:</strong> <span id="break-even">0</span> anni</p>
+                  <p><strong>Guadagno totale in 20 anni:</strong> <span id="guadagno-acquisto-20" class="text-success fw-bold">0 €</span></p>
+                </div>
+                <div class="col-md-6">
+                  <div style="height: 200px;">
+                    <canvas id="grafico-acquisto"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Tab Confronto -->
+            <div class="tab-pane fade" id="confronto" role="tabpanel" aria-labelledby="confronto-tab">
+              <h5>Confronto scenari</h5>
+              <p>Confronto tra la partecipazione continua ai guadagni e l'acquisto dell'impianto dopo un anno.</p>
+              
+              <div class="row mt-3">
+                <div class="col-md-5">
+                  <div class="table-responsive">
+                    <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th></th>
+                          <th>Partecipazione</th>
+                          <th>Acquisto</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Investimento</td>
+                          <td>0 €</td>
+                          <td><span id="investimento-confronto">0 €</span></td>
+                        </tr>
+                        <tr>
+                          <td>Guadagno a 20 anni</td>
+                          <td><span id="guadagno-part-confronto">0 €</span></td>
+                          <td><span id="guadagno-acq-confronto">0 €</span></td>
+                        </tr>
+                        <tr class="table-success">
+                          <td>Differenza</td>
+                          <td colspan="2" class="text-center">
+                            <span id="differenza-guadagno" class="fw-bold">0 €</span> a favore dell'acquisto
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="col-md-7">
+                  <div style="height: 200px;">
+                    <canvas id="grafico-confronto"></canvas>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
         
-        <div class="alert alert-success mt-3">
+        <div class="alert alert-success mt-4">
           <h5 class="mb-0">Con il nostro sistema puoi guadagnare <span id="guadagno-20-anni" class="fw-bold">0 €</span> in 20 anni senza investire!</h5>
         </div>
         
@@ -253,6 +366,11 @@
       </div>
     </div>
   </div>
+  
+  <!-- Script di Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Chart.js per i grafici -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <script>
     // Riferimenti agli elementi
@@ -329,6 +447,103 @@
       "piu_85000": 100000
     };
     
+    // Funzione per creare i grafici
+    function creaGrafici(datiPartecipazione, datiAcquisto) {
+      // Grafico Partecipazione
+      const ctxPart = document.getElementById('grafico-partecipazione').getContext('2d');
+      new Chart(ctxPart, {
+        type: 'line',
+        data: {
+          labels: datiPartecipazione.map(d => `Anno ${d.anno}`),
+          datasets: [{
+            label: 'Guadagno cumulativo',
+            data: datiPartecipazione.map(d => d.guadagnoCumulativo),
+            borderColor: '#4CAF50',
+            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+            fill: true,
+            tension: 0.1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Euro'
+              }
+            }
+          }
+        }
+      });
+      
+      // Grafico Acquisto
+      const ctxAcq = document.getElementById('grafico-acquisto').getContext('2d');
+      new Chart(ctxAcq, {
+        type: 'line',
+        data: {
+          labels: datiAcquisto.map(d => `Anno ${d.anno}`),
+          datasets: [{
+            label: 'Guadagno cumulativo',
+            data: datiAcquisto.map(d => d.guadagnoCumulativo),
+            borderColor: '#FF5722',
+            backgroundColor: 'rgba(255, 87, 34, 0.1)',
+            fill: true,
+            tension: 0.1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Euro'
+              }
+            }
+          }
+        }
+      });
+      
+      // Grafico Confronto
+      const ctxConfronto = document.getElementById('grafico-confronto').getContext('2d');
+      new Chart(ctxConfronto, {
+        type: 'line',
+        data: {
+          labels: datiAcquisto.map(d => `Anno ${d.anno}`),
+          datasets: [{
+            label: 'Partecipazione',
+            data: datiPartecipazione.map(d => d.guadagnoCumulativo),
+            borderColor: '#4CAF50',
+            backgroundColor: 'transparent',
+            borderWidth: 2
+          }, {
+            label: 'Acquisto',
+            data: datiAcquisto.map(d => d.guadagnoCumulativo),
+            borderColor: '#FF5722',
+            backgroundColor: 'transparent',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              title: {
+                display: true,
+                text: 'Euro'
+              }
+            }
+          }
+        }
+      });
+    }
+    
     // Gestione submit del form
     document.getElementById('calculator-form').addEventListener('submit', function(e) {
       e.preventDefault();
@@ -379,81 +594,4 @@
       // Non può essere più dell'effettivo consumo dell'azienda
       const percentualeAutoconsumo = Math.min(0.8, consumoStimatoKWh / produzione);
       const energiaAutoconsumata = produzione * percentualeAutoconsumo;
-      const energiaImmessaRete = produzione - energiaAutoconsumata;
-      
-      // Risparmio diretto dall'autoconsumo (a 0.25€/kWh)
-      const risparmioAutoconsumo = energiaAutoconsumata * 0.25;
-      
-      // Guadagno dalla vendita dell'energia immessa in rete (a 0.12€/kWh)
-      const guadagnoVenditaEnergia = energiaImmessaRete * 0.12;
-      
-      // Totale beneficio economico annuo
-      const beneficioTotale = risparmioAutoconsumo + guadagnoVenditaEnergia;
-      
-      // La parte che spetta all'azienda in base alla percentuale di partecipazione
-      const percentualePartecipazione = tipoSuperficie === 'tetto' ? 0.17 : 0.15;
-      const guadagnoAnnuo = beneficioTotale * percentualePartecipazione;
-      
-      const co2Risparmiata = produzione * 0.3 / 1000; // 0.3 kg per kWh, convertito in tonnellate
-      
-      // Formattazione
-      const formatNumber = (num) => {
-        return Math.floor(num).toLocaleString('it-IT');
-      };
-      
-      // Aggiorna risultati
-      document.getElementById('potenza').textContent = formatNumber(potenza) + ' kWp';
-      document.getElementById('produzione').textContent = formatNumber(produzione) + ' kWh';
-      document.getElementById('guadagno').textContent = formatNumber(guadagnoAnnuo) + ' €';
-      document.getElementById('co2').textContent = formatNumber(co2Risparmiata) + ' ton/anno';
-      document.getElementById('guadagno-20-anni').textContent = formatNumber(guadagnoAnnuo * 20) + ' €';
-      document.getElementById('email-display').textContent = email;
-      
-      // Aggiorna dettaglio economico
-      document.getElementById('spesa-attuale').textContent = formatNumber(spesaAnnuaEnergia) + ' €';
-      document.getElementById('energia-autoconsumata').textContent = formatNumber(energiaAutoconsumata);
-      document.getElementById('percentuale-autoconsumo').textContent = Math.round(percentualeAutoconsumo * 100);
-      document.getElementById('risparmio-autoconsumo').textContent = formatNumber(risparmioAutoconsumo) + ' €';
-      document.getElementById('energia-immessa').textContent = formatNumber(energiaImmessaRete);
-      document.getElementById('guadagno-vendita').textContent = formatNumber(guadagnoVenditaEnergia) + ' €';
-      document.getElementById('percentuale-partecipazione').textContent = Math.round(percentualePartecipazione * 100);
-      document.getElementById('guadagno-totale').textContent = formatNumber(guadagnoAnnuo) + ' €';
-      
-      // Nascondi form e mostra risultati
-      document.getElementById('risultati').style.display = 'block';
-      document.getElementById('form-container').style.display = 'none';
-      
-      // Scroll ai risultati
-      document.getElementById('risultati').scrollIntoView({ behavior: 'smooth' });
-      
-      // Qui in una vera implementazione invieresti i dati al server
-      console.log('Dati da inviare al server:', {
-        nome,
-        email, 
-        telefono,
-        ragioneSociale: document.getElementById('ragioneSociale').value,
-        tipoSuperficie,
-        superficie,
-        regione: regioneSelezionata,
-        fasciaConsumo,
-        consumoAnnuo,
-        risultati: {
-          potenza: potenza.toFixed(2),
-          produzione: Math.floor(produzione),
-          spesaAttuale: spesaAnnuaEnergia,
-          energiaAutoconsumata: Math.floor(energiaAutoconsumata),
-          energiaImmessa: Math.floor(energiaImmessaRete),
-          risparmioAutoconsumo: Math.floor(risparmioAutoconsumo),
-          guadagnoVendita: Math.floor(guadagnoVenditaEnergia),
-          guadagnoAnnuo: Math.floor(guadagnoAnnuo),
-          co2Risparmiata: co2Risparmiata.toFixed(2),
-          guadagno20Anni: Math.floor(guadagnoAnnuo * 20)
-        }
-      });
-      
-      // Simulazione invio email
-      alert('Simulazione: calcolo completato! I risultati sono stati inviati a ' + email);
-    });
-  </script>
-</body>
-</html>
+      const energiaImmessaRete = produzione - energiaAutoc
